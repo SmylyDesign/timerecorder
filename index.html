@@ -452,9 +452,9 @@ async function showUserDetails(userId) {
         const detailsModal = new bootstrap.Modal(document.getElementById('userDetailsModal'));
         const modalBody = detailsModal._element.querySelector('.modal-body');
         modalBody.innerHTML = `
-            <p>名前: ${user.name}</p>
-            <p>性別: ${user.gender}</p>
-            <p>メモ: ${user.memo}</p>
+            <p><strong>名前:</strong> ${user.name}</p>
+            <p><strong>性別:</strong> ${user.gender}</p>
+            <p><strong>メモ:</strong><br> ${user.memo}</p>
         `;
         detailsModal.show();
     }
