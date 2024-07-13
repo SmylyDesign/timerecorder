@@ -299,17 +299,20 @@
             });
         }
 
-        // 使用者一覧を検索
-        document.getElementById('userSearchInput').addEventListener('input', async (e) => {
-            const query = e.target.value.toLowerCase();
-            const users = await db.users.toArray();
-            const filteredUsers = users.filter(user => 
-                user.name.toLowerCase().includes(query) || 
-                user.gender.toLowerCase().includes(query) || 
-                user.memo.toLowerCase().includes(query)
-            );
-            renderUserList(filteredUsers);
+// 使用者一覧を検索
+document.getElementById('userSearchInput').addEventListener('input', async (e) => {
+    const query = e.target.value.toLowerCase();
+    const users = await db.users.toArray();
+    const searchTerms = query.split(/\s+/); // 半角スペースまたは全角スペースで分割
+    const filteredUsers = users.filter(user => {
+        return searchTerms.every(term => {
+            return user.name.toLowerCase().includes(term) ||
+                   user.gender.toLowerCase().includes(term) ||
+                   user.memo.toLowerCase().includes(term);
         });
+    });
+    renderUserList(filteredUsers);
+});
 
         // 使用者一覧モーダルが表示されたときに使用者一覧を表示
         document.getElementById('userListModal').addEventListener('shown.bs.modal', async () => {
@@ -371,17 +374,20 @@
             });
         }
 
-        // 打刻一覧を検索
-        document.getElementById('timeLogSearchInput').addEventListener('input', async (e) => {
-            const query = e.target.value.toLowerCase();
-            const timeLogs = await db.timeLogs.toArray();
-            const filteredLogs = timeLogs.filter(log => 
-                log.name.toLowerCase().includes(query) || 
-                log.timestamp.toLowerCase().includes(query) || 
-                (log.type === 'in' ? '出勤' : '退勤').toLowerCase().includes(query)
-            );
-            renderTimeLogList(filteredLogs);
+// 打刻一覧を検索
+document.getElementById('timeLogSearchInput').addEventListener('input', async (e) => {
+    const query = e.target.value.toLowerCase();
+    const timeLogs = await db.timeLogs.toArray();
+    const searchTerms = query.split(/\s+/); // 半角スペースまたは全角スペースで分割
+    const filteredLogs = timeLogs.filter(log => {
+        return searchTerms.every(term => {
+            return log.name.toLowerCase().includes(term) ||
+                   log.timestamp.toLowerCase().includes(term) ||
+                   (log.type === 'in' ? '出勤' : '退勤').toLowerCase().includes(term);
         });
+    });
+    renderTimeLogList(filteredLogs);
+});
 
         // 打刻一覧モーダルが表示されたときに打刻一覧を表示
         document.getElementById('timeLogModal').addEventListener('shown.bs.modal', async () => {
