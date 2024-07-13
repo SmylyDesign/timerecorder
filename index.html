@@ -213,37 +213,45 @@
 
             html5QrcodeScanner = new Html5Qrcode("reader");
             html5QrcodeScanner.start(
-                { facingMode: "environment" },
-                { fps: 10, qrbox: 250 },
-                onScanSuccess.bind(null, type),
-                onScanError
-            );
+            { facingMode: "environment" },
+            { fps: 10, qrbox: 250 },
+            (decodedText) => onScanSuccess(type, decodedText),
+            onScanError
+        );
+}
+
+async function onScanSuccess(type, decodedText) {
+    try {
+        // スキャナーを停止
+        await html5QrcodeScanner.stop();
+        
+        const scanModal = bootstrap.Modal.getInstance(document.getElementById('scanModal'));
+        scanModal.hide();
+
+        const userId = parseInt(decodedText);
+        const user = await db.users.get(userId);
+
+        if (user) {
+            const timestamp = new Date();
+            await db.timeLogs.add({userId, name: user.name, timestamp, type});
+            alert(`${type === 'in' ? '入場' : '退場'}しました`);
+        } else {
+            alert('不正なコードです');
         }
-
-        async function onScanSuccess(type, decodedText) {
-            html5QrcodeScanner.stop();
-            const scanModal = bootstrap.Modal.getInstance(document.getElementById('scanModal'));
-            scanModal.hide();
-
-            try {
-                const userId = parseInt(decodedText);
-                const user = await db.users.get(userId);
-
-                if (user) {
-                    const timestamp = new Date();
-                    await db.timeLogs.add({userId, name: user.name, timestamp, type});
-                    alert(`${type === 'in' ? '入場' : '退場'}しました`);
-                } else {
-                    alert('不正なコードです');
-                }
-            } catch (error) {
-                alert('不正なコードです');
-            }
+    } catch (error) {
+        console.error('Scan error:', error);
+        alert('スキャン中にエラーが発生しました');
+    } finally {
+        // カメラの接続を解除
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.clear();
         }
+    }
+}
 
-        function onScanError(error) {
-            console.warn(`QRコードスキャンエラー: ${error}`);
-        }
+function onScanError(error) {
+    console.warn(`QRコードスキャンエラー: ${error}`);
+}
 
         // 使用者一覧表示
         async function showUserList() {
