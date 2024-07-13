@@ -326,6 +326,13 @@
     });
 }
 
+// スキャンモーダルが表示されたときにカメラを停止
+scanModal._element.addEventListener('hidden.bs.modal', () => {
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.stop().catch(err => console.error(err));
+    }
+});
+
 
         // 使用者一覧を表示
         function renderUserList(users) {
