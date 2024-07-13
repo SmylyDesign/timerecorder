@@ -226,6 +226,20 @@
         </div>
     </div>
 
+<div class="modal fade" id="userDetailsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">使用者詳細</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- 詳細情報が表示されるエリア -->
+            </div>
+        </div>
+    </div>
+</div>
+
     <script>
         const db = new Dexie('TimeRecorderDB');
         db.version(1).stores({
@@ -392,21 +406,37 @@ async function deleteUser(id) {
     }
 }
 
-        // 打刻一覧を表示
-        function renderTimeLogList(timeLogs) {
-            const timeLogBody = document.getElementById('timeLogBody');
-            timeLogBody.innerHTML = '';
-            timeLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            timeLogs.forEach(log => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${log.name}</td>
-                    <td>${log.timestamp}</td>
-                    <td>${log.type === 'in' ? '出勤' : '退勤'}</td>
-                `;
-                timeLogBody.appendChild(tr);
-            });
-        }
+// 打刻一覧を表示
+function renderTimeLogList(timeLogs) {
+    const timeLogBody = document.getElementById('timeLogBody');
+    timeLogBody.innerHTML = '';
+    timeLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    timeLogs.forEach(log => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${log.name}</td>
+            <td>${log.timestamp}</td>
+            <td>${log.type === 'in' ? '出勤' : '退勤'}</td>
+            <td><button class="btn btn-info btn-sm" onclick="showUserDetails(${log.userId})">詳細</button></td>
+        `;
+        timeLogBody.appendChild(tr);
+    });
+}
+
+// 打刻者の詳細情報を表示するモーダル
+async function showUserDetails(userId) {
+    const user = await db.users.get(userId);
+    if (user) {
+        const detailsModal = new bootstrap.Modal(document.getElementById('userDetailsModal'));
+        const modalBody = detailsModal._element.querySelector('.modal-body');
+        modalBody.innerHTML = `
+            <p>名前: ${user.name}</p>
+            <p>性別: ${user.gender}</p>
+            <p>メモ: ${user.memo}</p>
+        `;
+        detailsModal.show();
+    }
+}
 
 // 打刻一覧を検索
 document.getElementById('timeLogSearchInput').addEventListener('input', async (e) => {
