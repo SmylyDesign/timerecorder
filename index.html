@@ -349,14 +349,17 @@ document.getElementById('userSearchInput').addEventListener('input', async (e) =
             renderUserList(users);
         });
 
+// 使用者を削除
+async function deleteUser(id) {
+    if (confirm('本当に削除しますか？')) {
+        // 関連する打刻情報を削除
+        await db.timeLogs.where('userId').equals(id).delete();
         // 使用者を削除
-        async function deleteUser(id) {
-            if (confirm('本当に削除しますか？')) {
-                await db.users.delete(id);
-                const users = await db.users.toArray();
-                renderUserList(users);
-            }
-        }
+        await db.users.delete(id);
+        const users = await db.users.toArray();
+        renderUserList(users);
+    }
+}
 
         // 打刻一覧を表示
         function renderTimeLogList(timeLogs) {
