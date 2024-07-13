@@ -13,36 +13,67 @@
 <body>
     <div class="container mt-5">
         <h1 class="mb-4">QRコードタイムレコーダー</h1>
-        <div class="row mb-3">
-            <div class="col">
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#registerModal">登録</button>
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#registerModal">登録</button>
+                    </div>
+                </div>
             </div>
-            <div class="col">
-                <button class="btn btn-success" onclick="startScan('in')">IN</button>
+            <div class="col-md-3 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <button class="btn btn-success w-100" onclick="startScan('in')">IN</button>
+                    </div>
+                </div>
             </div>
-            <div class="col">
-                <button class="btn btn-danger" onclick="startScan('out')">OUT</button>
+            <div class="col-md-3 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <button class="btn btn-danger w-100" onclick="startScan('out')">OUT</button>
+                    </div>
+                </div>
             </div>
-            <div class="col">
-                <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#userListModal">使用者一覧</button>
+            <div class="col-md-3 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <button class="btn btn-info w-100" data-bs-toggle="modal" data-bs-target="#userListModal">使用者一覧</button>
+                    </div>
+                </div>
             </div>
-            <div class="col">
-                <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#timeLogModal">打刻一覧</button>
+            <div class="col-md-3 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <button class="btn btn-warning w-100" data-bs-toggle="modal" data-bs-target="#timeLogModal">打刻一覧</button>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col">
-                <button class="btn btn-secondary" onclick="exportData()">エクスポート</button>
+            <div class="col-md-3 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <button class="btn btn-secondary w-100" onclick="exportData()">エクスポート</button>
+                    </div>
+                </div>
             </div>
-            <div class="col">
-                <input type="file" id="importFile" style="display: none;" onchange="importData(event)">
-                <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">インポート</button>
+            <div class="col-md-3 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <input type="file" id="importFile" style="display: none;" onchange="importData(event)">
+                        <button class="btn btn-secondary w-100" onclick="document.getElementById('importFile').click()">インポート</button>
+                    </div>
+                </div>
             </div>
-            <div class="col">
-                <button class="btn btn-secondary" onclick="resetData()">リセット</button>
+            <div class="col-md-3 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <button class="btn btn-secondary w-100" onclick="resetData()">リセット</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
 
     <!-- 登録モーダル -->
     <div class="modal fade" id="registerModal" tabindex="-1">
