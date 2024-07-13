@@ -292,8 +292,8 @@
     html5QrcodeScanner.start(
         { facingMode: "environment" },
         {
-            fps: 10,
-            qrbox: 250
+            fps: 30,
+            qrbox: 300
         },
         async (decodedText) => {
             html5QrcodeScanner.stop();
@@ -306,8 +306,12 @@
                 const timestamp = new Date().toLocaleString('ja-JP');
                 await db.timeLogs.add({ userId: id, name: user.name, timestamp, type });
                 alert(`${user.name} さんの ${type === 'in' ? '出勤' : '退勤'} が記録されました。`);
+                // アラートが閉じられたらリロード
+                window.location.reload();
             } else {
                 alert('登録されていないユーザーです。');
+                // アラートが閉じられたらリロード
+                window.location.reload();
             }
         },
         (errorMessage) => {
@@ -323,15 +327,13 @@
         if (html5QrcodeScanner) {
             html5QrcodeScanner.stop().catch(err => console.error(err));
         }
+        // モーダルが閉じられたらリロード
+        window.location.reload();
     });
 }
 
-// スキャンモーダルが表示されたときにカメラを停止
-scanModal._element.addEventListener('hidden.bs.modal', () => {
-    if (html5QrcodeScanner) {
-        html5QrcodeScanner.stop().catch(err => console.error(err));
-    }
-});
+
+
 
 
         // 使用者一覧を表示
