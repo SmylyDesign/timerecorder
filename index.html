@@ -281,50 +281,51 @@
         });
 
         function startScan(type) {
-            let html5QrcodeScanner;
-            const scanModal = new bootstrap.Modal(document.getElementById('scanModal'));
-            scanModal.show();
+    let html5QrcodeScanner;
+    const scanModal = new bootstrap.Modal(document.getElementById('scanModal'));
+    scanModal.show();
 
-            const readerElement = document.getElementById('reader');
-            readerElement.innerHTML = '';
+    const readerElement = document.getElementById('reader');
+    readerElement.innerHTML = ''; // 既存のコンテンツをクリア
 
-            html5QrcodeScanner = new Html5Qrcode("reader");
-            html5QrcodeScanner.start(
-                { facingMode: "environment" },
-                {
-                    fps: 10,
-                    qrbox: 250
-                },
-                async (decodedText) => {
-                    html5QrcodeScanner.stop();
-                    scanModal.hide();
+    html5QrcodeScanner = new Html5Qrcode("reader");
+    html5QrcodeScanner.start(
+        { facingMode: "environment" },
+        {
+            fps: 10,
+            qrbox: 250
+        },
+        async (decodedText) => {
+            html5QrcodeScanner.stop();
+            scanModal.hide();
 
-                    const id = parseInt(decodedText);
-                    const user = await db.users.get(id);
+            const id = parseInt(decodedText);
+            const user = await db.users.get(id);
 
-                    if (user) {
-                        const timestamp = new Date().toLocaleString('ja-JP');
-                        await db.timeLogs.add({ userId: id, name: user.name, timestamp, type });
-                        alert(`${user.name} さんの ${type === 'in' ? '出勤' : '退勤'} が記録されました。`);
-                    } else {
-                        alert('登録されていないユーザーです。');
-                    }
-                },
-                (errorMessage) => {
-                    // QRコード読み取りに失敗した場合の処理
-                }
-            ).catch((err) => {
-                // カメラの初期化に失敗した場合の処理
-                console.error(err);
-            });
-
-            // モーダルを閉じたときにカメラを停止
-            scanModal._element.addEventListener('hidden.bs.modal', () => {
-                if (html5QrcodeScanner) {
-                    html5QrcodeScanner.stop().catch(err => console.error(err));
-                }
-            });
+            if (user) {
+                const timestamp = new Date().toLocaleString('ja-JP');
+                await db.timeLogs.add({ userId: id, name: user.name, timestamp, type });
+                alert(`${user.name} さんの ${type === 'in' ? '出勤' : '退勤'} が記録されました。`);
+            } else {
+                alert('登録されていないユーザーです。');
+            }
+        },
+        (errorMessage) => {
+            // QRコード読み取りに失敗した場合の処理
         }
+    ).catch((err) => {
+        // カメラの初期化に失敗した場合の処理
+        console.error(err);
+    });
+
+    // モーダルを閉じたときにカメラを停止
+    scanModal._element.addEventListener('hidden.bs.modal', () => {
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.stop().catch(err => console.error(err));
+        }
+    });
+}
+
 
         // 使用者一覧を表示
         function renderUserList(users) {
