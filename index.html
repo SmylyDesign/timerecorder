@@ -18,6 +18,7 @@
                 <div class="card">
                     <div class="card-body">
                         <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#registerModal">登録</button>
+                        <p class="mt-2 small text-muted">新しい従業員を登録します。名前、性別、メモを入力し、個別のQRコードを生成します。</p>
                     </div>
                 </div>
             </div>
@@ -25,6 +26,7 @@
                 <div class="card">
                     <div class="card-body">
                         <button class="btn btn-success w-100" onclick="startScan('in')">IN</button>
+                        <p class="mt-2 small text-muted">出勤時間を記録します。従業員のQRコードをスキャンして、現在時刻を出勤時間として記録します。</p>
                     </div>
                 </div>
             </div>
@@ -32,13 +34,15 @@
                 <div class="card">
                     <div class="card-body">
                         <button class="btn btn-danger w-100" onclick="startScan('out')">OUT</button>
+                        <p class="mt-2 small text-muted">退勤時間を記録します。従業員のQRコードをスキャンして、現在時刻を退勤時間として記録します。</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3 mb-3">
                 <div class="card">
                     <div class="card-body">
-                        <button class="btn btn-info w-100" data-bs-toggle="modal" data-bs-target="#userListModal">使用者一覧</button>
+                        <button class="btn btn-info w-100" data-bs-toggle="modal" data-bs-target="#userListModal">従業員一覧</button>
+                        <p class="mt-2 small text-muted">登録済みの全従業員を表示します。各従業員の情報を編集したり、削除したりすることができます。</p>
                     </div>
                 </div>
             </div>
@@ -46,6 +50,7 @@
                 <div class="card">
                     <div class="card-body">
                         <button class="btn btn-warning w-100" data-bs-toggle="modal" data-bs-target="#timeLogModal">打刻一覧</button>
+                        <p class="mt-2 small text-muted">記録された全ての打刻情報を表示します。日時、従業員名、出勤/退勤の種類、従業員の詳細が確認できます。</p>
                     </div>
                 </div>
             </div>
@@ -53,6 +58,7 @@
                 <div class="card">
                     <div class="card-body">
                         <button class="btn btn-secondary w-100" onclick="exportData()">エクスポート</button>
+                        <p class="mt-2 small text-muted">全てのデータをJSONファイルとして保存します。従業員情報と打刻記録が含まれます。</p>
                     </div>
                 </div>
             </div>
@@ -61,6 +67,7 @@
                     <div class="card-body">
                         <input type="file" id="importFile" style="display: none;" onchange="importData(event)">
                         <button class="btn btn-secondary w-100" onclick="document.getElementById('importFile').click()">インポート</button>
+                        <p class="mt-2 small text-muted">保存したJSONファイルからデータを読み込みます。既存のデータは上書きされます。</p>
                     </div>
                 </div>
             </div>
@@ -68,6 +75,7 @@
                 <div class="card">
                     <div class="card-body">
                         <button class="btn btn-secondary w-100" onclick="resetData()">リセット</button>
+                        <p class="mt-2 small text-muted">全てのデータを完全に削除します。従業員情報と打刻記録が全て消去されるので注意してください。</p>
                     </div>
                 </div>
             </div>
