@@ -74,9 +74,6 @@
                         <button type="submit" class="btn btn-primary">登録</button>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <!-- QRコード表示エリアは削除 -->
-                </div>
             </div>
         </div>
     </div>
@@ -90,7 +87,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div id="qrcode"></div>  <!-- QRコード表示エリア -->
+                    <div id="qrcode"></div> <!-- QRコード表示エリア -->
                 </div>
             </div>
         </div>
@@ -120,19 +117,54 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="text" id="userSearchInput" class="form-control mb-3" placeholder="検索...">
+                    <input type="text" id="userSearchInput" class="form-control mb-3" placeholder="検索.">
                     <table class="table">
                         <thead>
                             <tr>
-                                <th style="white-space: nowrap;">ID</th>  <!-- ID列のスタイルを追加 -->
-                                <th style="white-space: nowrap;">名前</th>  <!-- 名前列のスタイルを追加 -->
-                                <th style="white-space: nowrap;">性別</th>  <!-- 性別列のスタイルを追加 -->
-                                <th>メモ</th>  <!-- メモ列のスタイルを削除 -->
-                                <th style="white-space: nowrap;">操作</th>  <!-- 操作列のスタイルを追加 -->
+                                <th style="white-space: nowrap;">ID</th>
+                                <th style="white-space: nowrap;">名前</th>
+                                <th style="white-space: nowrap;">性別</th>
+                                <th>メモ</th>
+                                <th style="white-space: nowrap;">操作</th>
                             </tr>
                         </thead>
                         <tbody id="userListBody"></tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 編集モーダル -->
+    <div class="modal fade" id="editUserModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">使用者編集</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editUserForm">
+                        <input type="hidden" id="editUserId">
+                        <div class="mb-3">
+                            <label for="editName" class="form-label">名前</label>
+                            <input type="text" class="form-control" id="editName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editGender" class="form-label">性別</label>
+                            <select class="form-select" id="editGender" required>
+                                <option value="">選択してください</option>
+                                <option value="男性">男性</option>
+                                <option value="女性">女性</option>
+                                <option value="その他">その他</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editMemo" class="form-label">メモ</label>
+                            <textarea class="form-control" id="editMemo" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -147,7 +179,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="text" id="timeLogSearchInput" class="form-control mb-3" placeholder="検索...">
+                    <input type="text" id="timeLogSearchInput" class="form-control mb-3" placeholder="検索.">
                     <table class="table">
                         <thead>
                             <tr>
@@ -164,268 +196,238 @@
     </div>
 
     <script>
-        // データベース初期化
         const db = new Dexie('TimeRecorderDB');
         db.version(1).stores({
-            users: '++id, name, gender, memo',
-            timeLogs: '++id, userId, name, timestamp, type'
+            users: '++id,name,gender,memo',
+            timeLogs: '++id,userId,name,timestamp,type'
         });
 
-        // QRコード生成
-        function generateQRCode(id) {
-            const qrcodeDiv = document.getElementById("qrcode"); // QRコード表示エリアを取得
-            qrcodeDiv.innerHTML = ''; // 前回のQRコードをクリア
-            const qr = new QRCode(qrcodeDiv, {
-                text: id.toString(),
-                width: 128,
-                height: 128
-            });
-        }
+        db.open().catch((err) => {
+            console.error(err.stack || err);
+        });
 
-        // ユーザー登録
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = document.getElementById('name').value;
             const gender = document.getElementById('gender').value;
             const memo = document.getElementById('memo').value;
-
-            const id = await db.users.add({name, gender, memo});
-            // QRコードモーダルを表示
-            const qrcodeModal = new bootstrap.Modal(document.getElementById('qrcodeModal'));
-            qrcodeModal.show();
-            generateQRCode(id);
-            alert('登録が完了しました。QRコードを保存してください。');
-
-            // フォームをリセット
+            const userId = await db.users.add({ name, gender, memo });
+            alert('登録が完了しました。');
             document.getElementById('registerForm').reset();
-
-            // 登録モーダルを閉じる
             const registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
             registerModal.hide();
+
+            // QRコードを生成して表示
+            const qrcodeModal = new bootstrap.Modal(document.getElementById('qrcodeModal'));
+            const qrcodeElement = document.getElementById('qrcode');
+            qrcodeElement.innerHTML = ''; // 既存のQRコードをクリア
+            new QRCode(qrcodeElement, {
+                text: userId.toString(),
+                width: 256,
+                height: 256
+            });
+            qrcodeModal.show();
         });
 
-        // QRコードスキャン
-        let html5QrcodeScanner;
-        let scanType;
+        document.getElementById('registerModal').addEventListener('hidden.bs.modal', () => {
+            document.getElementById('registerForm').reset();
+        });
 
         function startScan(type) {
-    scanType = type;
-    const scanModal = new bootstrap.Modal(document.getElementById('scanModal'));
-    scanModal.show();
+            let html5QrcodeScanner;
+            const scanModal = new bootstrap.Modal(document.getElementById('scanModal'));
+            scanModal.show();
 
-    html5QrcodeScanner = new Html5Qrcode("reader");
-    html5QrcodeScanner.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: 250 },
-        onScanSuccess,
-        onScanError
-    ).catch((err) => {
-        console.error("Failed to start scanner", err);
-        alert("スキャナーの起動に失敗しました");
-        scanModal.hide();
-    });
-}
+            const readerElement = document.getElementById('reader');
+            readerElement.innerHTML = '';
 
-async function onScanSuccess(decodedText) {
-    try {
-        const userId = parseInt(decodedText);
-        const user = await db.users.get(userId);
+            html5QrcodeScanner = new Html5Qrcode("reader");
+            html5QrcodeScanner.start(
+                { facingMode: "environment" },
+                {
+                    fps: 10,
+                    qrbox: 250
+                },
+                async (decodedText) => {
+                    html5QrcodeScanner.stop();
+                    scanModal.hide();
 
-        if (user) {
-            const timestamp = new Date();
-            await db.timeLogs.add({userId, name: user.name, timestamp, type: scanType});
-            alert(`${scanType === 'in' ? '入場' : '退場'}しました`);
-            
-            // スキャンが成功した後にカメラをOFFにする
-            await html5QrcodeScanner.stop();
-            html5QrcodeScanner.clear();
-            html5QrcodeScanner = null;
+                    const id = parseInt(decodedText);
+                    const user = await db.users.get(id);
 
-            const scanModal = bootstrap.Modal.getInstance(document.getElementById('scanModal'));
-            scanModal.hide();
-        } else {
-            alert('不正なコードです');
-            // 不正なコードの場合はスキャンを継続
+                    if (user) {
+                        const timestamp = new Date().toLocaleString('ja-JP');
+                        await db.timeLogs.add({ userId: id, name: user.name, timestamp, type });
+                        alert(`${user.name} さんの ${type === 'in' ? '出勤' : '退勤'} が記録されました。`);
+                    } else {
+                        alert('登録されていないユーザーです。');
+                    }
+                },
+                (errorMessage) => {
+                    // QRコード読み取りに失敗した場合の処理
+                }
+            ).catch((err) => {
+                // カメラの初期化に失敗した場合の処理
+                console.error(err);
+            });
+
+            // モーダルを閉じたときにカメラを停止
+            scanModal._element.addEventListener('hidden.bs.modal', () => {
+                if (html5QrcodeScanner) {
+                    html5QrcodeScanner.stop().catch(err => console.error(err));
+                }
+            });
         }
-    } catch (error) {
-        console.error('Scan error:', error);
-        alert('スキャン中にエラーが発生しました');
-    }
-}
 
-function onScanError(error) {
-    // スキャンエラーの場合は何もせず、スキャンを継続
-    console.warn(`QRコードスキャンエラー: ${error}`);
-}
-
-        // 使用者一覧表示
-        async function showUserList() {
-            const users = await db.users.toArray();
+        // 使用者一覧を表示
+        function renderUserList(users) {
             const userListBody = document.getElementById('userListBody');
             userListBody.innerHTML = '';
-
             users.forEach(user => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
                     <td style="white-space: nowrap;">${user.id}</td>
                     <td style="white-space: nowrap;">${user.name}</td>
                     <td style="white-space: nowrap;">${user.gender}</td>
-                    <td>${user.memo.replace(/\n/g, '<br>')}</td>  <!-- メモ列を追加 -->
+                    <td>${user.memo}</td>
                     <td style="white-space: nowrap;">
-                        <button class="btn btn-sm btn-primary" onclick="editUser(${user.id})">編集</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})">削除</button>
+                        <button class="btn btn-primary btn-sm" onclick="editUser(${user.id})">編集</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.id})">削除</button>
                     </td>
                 `;
-                userListBody.appendChild(row);
+                userListBody.appendChild(tr);
             });
         }
 
-// モーダルが閉じられたときにカメラをOFFにする
-document.getElementById('scanModal').addEventListener('hidden.bs.modal', () => {
-    if (html5QrcodeScanner) {
-        html5QrcodeScanner.stop().then(() => {
-            html5QrcodeScanner.clear();
-            html5QrcodeScanner = null;
-        }).catch(err => console.error("Failed to stop scanner", err));
-    }
-});
+        // 使用者一覧を検索
+        document.getElementById('userSearchInput').addEventListener('input', async (e) => {
+            const query = e.target.value.toLowerCase();
+            const users = await db.users.toArray();
+            const filteredUsers = users.filter(user => 
+                user.name.toLowerCase().includes(query) || 
+                user.gender.toLowerCase().includes(query) || 
+                user.memo.toLowerCase().includes(query)
+            );
+            renderUserList(filteredUsers);
+        });
 
+        // 使用者一覧モーダルが表示されたときに使用者一覧を表示
+        document.getElementById('userListModal').addEventListener('shown.bs.modal', async () => {
+            const users = await db.users.toArray();
+            renderUserList(users);
+        });
 
-        document.getElementById('userListModal').addEventListener('show.bs.modal', showUserList);
-
-        // ユーザー編集
+        // 使用者を編集
         async function editUser(id) {
             const user = await db.users.get(id);
             if (user) {
-                const newName = prompt('新しい名前', user.name);
-                const newGender = prompt('新しい性別', user.gender);
-                const newMemo = prompt('新しいメモ', user.memo);
-
-                if (newName !== null && newGender !== null && newMemo !== null) {
-                    await db.users.update(id, {name: newName, gender: newGender, memo: newMemo});
-                    showUserList();
-                }
+                document.getElementById('editUserId').value = user.id;
+                document.getElementById('editName').value = user.name;
+                document.getElementById('editGender').value = user.gender;
+                document.getElementById('editMemo').value = user.memo;
+                const editUserModal = new bootstrap.Modal(document.getElementById('editUserModal'));
+                editUserModal.show();
             }
         }
 
-        // ユーザー削除
+        // 編集された使用者を保存
+        document.getElementById('editUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('editUserId').value);
+            const name = document.getElementById('editName').value;
+            const gender = document.getElementById('editGender').value;
+            const memo = document.getElementById('editMemo').value;
+            await db.users.update(id, { name, gender, memo });
+            alert('更新が完了しました。');
+            document.getElementById('editUserForm').reset();
+            const editUserModal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
+            editUserModal.hide();
+            const users = await db.users.toArray();
+            renderUserList(users);
+        });
+
+        // 使用者を削除
         async function deleteUser(id) {
             if (confirm('本当に削除しますか？')) {
-                // 使用者の打刻日時を削除
-                await db.timeLogs.where('userId').equals(id).delete();
-                // 使用者を削除
                 await db.users.delete(id);
-                showUserList();
+                const users = await db.users.toArray();
+                renderUserList(users);
             }
         }
 
-        // 打刻一覧表示
-        async function showTimeLog() {
-            const timeLogs = await db.timeLogs.reverse().sortBy('timestamp');
+        // 打刻一覧を表示
+        function renderTimeLogList(timeLogs) {
             const timeLogBody = document.getElementById('timeLogBody');
             timeLogBody.innerHTML = '';
-
+            timeLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
             timeLogs.forEach(log => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
                     <td>${log.name}</td>
-                    <td>${log.timestamp.toLocaleString()}</td>
-                    <td>${log.type === 'in' ? '入場' : '退場'}</td>
+                    <td>${log.timestamp}</td>
+                    <td>${log.type === 'in' ? '出勤' : '退勤'}</td>
                 `;
-                timeLogBody.appendChild(row);
+                timeLogBody.appendChild(tr);
             });
         }
 
-        document.getElementById('timeLogModal').addEventListener('show.bs.modal', showTimeLog);
+        // 打刻一覧を検索
+        document.getElementById('timeLogSearchInput').addEventListener('input', async (e) => {
+            const query = e.target.value.toLowerCase();
+            const timeLogs = await db.timeLogs.toArray();
+            const filteredLogs = timeLogs.filter(log => 
+                log.name.toLowerCase().includes(query) || 
+                log.timestamp.toLowerCase().includes(query) || 
+                (log.type === 'in' ? '出勤' : '退勤').toLowerCase().includes(query)
+            );
+            renderTimeLogList(filteredLogs);
+        });
 
-        // データエクスポート
+        // 打刻一覧モーダルが表示されたときに打刻一覧を表示
+        document.getElementById('timeLogModal').addEventListener('shown.bs.modal', async () => {
+            const timeLogs = await db.timeLogs.toArray();
+            renderTimeLogList(timeLogs);
+        });
+
+        // データのエクスポート
         async function exportData() {
             const users = await db.users.toArray();
             const timeLogs = await db.timeLogs.toArray();
-            const data = JSON.stringify({users, timeLogs});
-            
-            const blob = new Blob([data], {type: 'application/json'});
+            const data = { users, timeLogs };
+            const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `timerecorder_data_${new Date().toLocaleString('ja-JP', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            })}.json`;
+            a.download = 'timerecorder_data.json';
             a.click();
+            URL.revokeObjectURL(url);
         }
 
-        // データインポート
+        // データのインポート
         async function importData(event) {
             const file = event.target.files[0];
-            const reader = new FileReader();
-
-            reader.onload = async (e) => {
-                try {
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
                     const data = JSON.parse(e.target.result);
-                    // データベースをクリアしてからインポート
                     await db.users.clear();
                     await db.timeLogs.clear();
-                    // インポート処理
                     await db.users.bulkAdd(data.users);
-                    // 時刻をJIS表記に変換してインポート
-                    await db.timeLogs.bulkAdd(data.timeLogs.map(log => ({
-                        ...log,
-                        timestamp: new Date(log.timestamp).toLocaleString('ja-JP')
-                    })));
-                    alert('データのインポートが完了しました');
-                } catch (error) {
-                    alert('データのインポートに失敗しました');
-                }
-            };
-
-            reader.readAsText(file);
+                    await db.timeLogs.bulkAdd(data.timeLogs);
+                    alert('データのインポートが完了しました。');
+                };
+                reader.readAsText(file);
+            }
         }
 
-        // データリセット
+        // データのリセット
         async function resetData() {
-            if (confirm('本当にすべてのデータを消去しますか？')) {
+            if (confirm('全てのデータをリセットしますか？')) {
                 await db.users.clear();
                 await db.timeLogs.clear();
-                alert('すべてのデータが消去されました');
-                // リロードを追加
-                location.reload();
+                alert('データがリセットされました。');
             }
         }
-
-        // 検索機能
-        function searchTable(inputId, tableBodyId) {
-            const input = document.getElementById(inputId);
-            const filter = input.value.toUpperCase().replace(/[\s　]/g, ' ').split(' '); // 半角スペースと全角スペースで分割
-            const tbody = document.getElementById(tableBodyId);
-            const tr = tbody.getElementsByTagName('tr');
-
-            for (let i = 0; i < tr.length; i++) {
-                const td = tr[i].getElementsByTagName('td');
-                let display = true;
-                for (let j = 0; j < filter.length; j++) {
-                    let found = false;
-                    for (let k = 0; k < td.length; k++) {
-                        if (td[k].textContent.toUpperCase().indexOf(filter[j]) > -1) {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        display = false;
-                        break;
-                    }
-                }
-                tr[i].style.display = display ? '' : 'none';
-            }
-        }
-
-        document.getElementById('userSearchInput').addEventListener('keyup', () => searchTable('userSearchInput', 'userListBody'));
-        document.getElementById('timeLogSearchInput').addEventListener('keyup', () => searchTable('timeLogSearchInput', 'timeLogBody'));
     </script>
 </body>
 </html>
