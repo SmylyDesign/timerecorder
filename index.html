@@ -201,30 +201,32 @@
         </div>
     </div>
 
-    <!-- 打刻一覧モーダル -->
-    <div class="modal fade" id="timeLogModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">打刻一覧</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="text" id="timeLogSearchInput" class="form-control mb-3" placeholder="検索.">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>名前</th>
-                                <th>日時</th>
-                                <th>種類</th>
-                            </tr>
-                        </thead>
-                        <tbody id="timeLogBody"></tbody>
-                    </table>
-                </div>
+<!-- 打刻一覧モーダル -->
+<div class="modal fade" id="timeLogModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">打刻一覧</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <button class="btn btn-danger" onclick="deleteAllTimeLogs()">全件削除</button><br><br>
+                <input type="text" id="timeLogSearchInput" class="form-control mb-3" placeholder="検索.">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>名前</th>
+                            <th>日時</th>
+                            <th>種類</th>
+                        </tr>
+                    </thead>
+                    <tbody id="timeLogBody"></tbody>
+                </table>
             </div>
         </div>
     </div>
+</div>
+
 
 <div class="modal fade" id="userDetailsModal" tabindex="-1">
     <div class="modal-dialog">
@@ -396,7 +398,7 @@ document.getElementById('userSearchInput').addEventListener('input', async (e) =
 
 // 使用者を削除
 async function deleteUser(id) {
-    if (confirm('本当に削除しますか？')) {
+    if (confirm('本当に削除しますか？関連する打刻情報も削除されます...')) {
         // 関連する打刻情報を削除
         await db.timeLogs.where('userId').equals(id).delete();
         // 使用者を削除
@@ -421,6 +423,16 @@ function renderTimeLogList(timeLogs) {
         `;
         timeLogBody.appendChild(tr);
     });
+}
+
+// 打刻一覧を全件削除
+async function deleteAllTimeLogs() {
+    if (confirm('全ての打刻情報を削除しますか？')) {
+        await db.timeLogs.clear();
+        alert('打刻情報が全て削除されました。');
+        const timeLogs = await db.timeLogs.toArray();
+        renderTimeLogList(timeLogs); // 削除後に一覧を再描画
+    }
 }
 
 // 打刻者の詳細情報を表示するモーダル
@@ -452,6 +464,8 @@ document.getElementById('timeLogSearchInput').addEventListener('input', async (e
     });
     renderTimeLogList(filteredLogs);
 });
+
+
 
         // 打刻一覧モーダルが表示されたときに打刻一覧を表示
         document.getElementById('timeLogModal').addEventListener('shown.bs.modal', async () => {
