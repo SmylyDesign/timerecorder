@@ -336,25 +336,26 @@
 
 
 
-        // 使用者一覧を表示
-        function renderUserList(users) {
-            const userListBody = document.getElementById('userListBody');
-            userListBody.innerHTML = '';
-            users.forEach(user => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td style="white-space: nowrap;">${user.id}</td>
-                    <td style="white-space: nowrap;">${user.name}</td>
-                    <td style="white-space: nowrap;">${user.gender}</td>
-                    <td>${user.memo}</td>
-                    <td style="white-space: nowrap;">
-                        <button class="btn btn-primary btn-sm" onclick="editUser(${user.id})">編集</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.id})">削除</button>
-                    </td>
-                `;
-                userListBody.appendChild(tr);
-            });
-        }
+// 使用者一覧を表示
+function renderUserList(users) {
+    const userListBody = document.getElementById('userListBody');
+    userListBody.innerHTML = '';
+    users.forEach(user => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td style="white-space: nowrap;">${user.id}</td>
+            <td style="white-space: nowrap;">${user.name}</td>
+            <td style="white-space: nowrap;">${user.gender}</td>
+            <td>${user.memo.replace(/\n/g, '<br>')}</td>
+            <td style="white-space: nowrap;">
+                <button class="btn btn-primary btn-sm" onclick="editUser(${user.id})">編集</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.id})">削除</button>
+            </td>
+        `;
+        userListBody.appendChild(tr);
+    });
+}
+
 
 // 使用者一覧を検索
 document.getElementById('userSearchInput').addEventListener('input', async (e) => {
@@ -454,7 +455,7 @@ async function showUserDetails(userId) {
         modalBody.innerHTML = `
             <p><strong>名前:</strong> ${user.name}</p>
             <p><strong>性別:</strong> ${user.gender}</p>
-            <p><strong>メモ:</strong><br> ${user.memo}</p>
+            <p><strong>メモ:</strong><br> ${user.memo.replace(/\n/g, '<br>')} </p>
         `;
         detailsModal.show();
     }
