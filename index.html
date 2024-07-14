@@ -152,7 +152,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">使用者一覧</h5>
+                    <h5 class="modal-title">従業員一覧</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -175,11 +175,11 @@
     </div>
 
     <!-- 編集モーダル -->
-    <div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal fade" id="editUserModal" tabindex="-1" style="background-color: rgba(79, 79, 79, 0.5);">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">使用者編集</h5>
+                    <h5 class="modal-title">従業員編集</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -236,11 +236,11 @@
 </div>
 
 
-<div class="modal fade" id="userDetailsModal" tabindex="-1">
+<div class="modal fade" id="userDetailsModal" tabindex="-1" style="background-color: rgba(79, 79, 79, 0.5);">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">使用者詳細</h5>
+                <h5 class="modal-title">従業員詳細</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -249,6 +249,8 @@
         </div>
     </div>
 </div>
+
+
 
     <script>
         const db = new Dexie('TimeRecorderDB');
@@ -307,6 +309,13 @@
             html5QrcodeScanner.stop();
             scanModal.hide();
 
+            // 数字以外の文字列の場合、エラーメッセージを表示
+            if (isNaN(parseInt(decodedText))) {
+                alert('不正なQRコードです。');
+                window.location.reload();
+                return; // 処理を終了
+            }
+
             const id = parseInt(decodedText);
             const user = await db.users.get(id);
 
@@ -322,12 +331,12 @@
                 window.location.reload();
             }
         },
-        (errorMessage) => {
+            (errorMessage) => {
             // QRコード読み取りに失敗した場合の処理
-        }
-    ).catch((err) => {
-        // カメラの初期化に失敗した場合の処理
-        console.error(err);
+            }
+            ).catch((err) => {
+            // カメラの初期化に失敗した場合の処理
+            console.error(err);
     });
 
     // モーダルを閉じたときにカメラを停止
@@ -339,6 +348,7 @@
         window.location.reload();
     });
 }
+
 
 
 
