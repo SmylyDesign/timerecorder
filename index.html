@@ -315,7 +315,12 @@
 
                 // 数値に変換できない場合、エラーをスロー
                 if (isNaN(id)) {
-                    throw new Error('不正なQRコードです。');
+                    scanModal._element.addEventListener('hidden.bs.modal', () => {
+                        alert('不正なQRコードです。');
+                        // アラートが閉じられたらリロード
+                        window.location.reload();
+                    }, { once: true });
+                    return;
                 }
 
                 const user = await db.users.get(id);
@@ -327,12 +332,18 @@
                     // アラートが閉じられたらリロード
                     window.location.reload();
                 } else {
-                    throw new Error('登録されていないユーザーです。');
+                    scanModal._element.addEventListener('hidden.bs.modal', () => {
+                        alert('登録されていないメンバーです。');
+                        // アラートが閉じられたらリロード
+                        window.location.reload();
+                    }, { once: true });
                 }
             } catch (error) {
-                alert(error.message);
-                // アラートが閉じられたらリロード
-                window.location.reload();
+                scanModal._element.addEventListener('hidden.bs.modal', () => {
+                    alert(error.message);
+                    // アラートが閉じられたらリロード
+                    window.location.reload();
+                }, { once: true });
             }
         },
         (errorMessage) => {
@@ -352,6 +363,7 @@
         window.location.reload();
     });
 }
+
 
 
 // 使用者一覧を表示
