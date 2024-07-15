@@ -306,6 +306,9 @@
             qrbox: 300
         },
         async (decodedText) => {
+            html5QrcodeScanner.stop();
+            scanModal.hide();
+
             try {
                 // QRコードの内容を数値に変換
                 const id = parseInt(decodedText);
@@ -327,10 +330,6 @@
                     throw new Error('登録されていないユーザーです。');
                 }
             } catch (error) {
-                // エラーが発生した場合、モーダルを閉じる
-                html5QrcodeScanner.stop();
-                scanModal.hide();
-
                 alert(error.message);
                 // アラートが閉じられたらリロード
                 window.location.reload();
@@ -353,7 +352,6 @@
         window.location.reload();
     });
 }
-
 
 
 // 使用者一覧を表示
