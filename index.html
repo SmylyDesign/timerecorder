@@ -500,7 +500,7 @@ function renderTimeLogList(timeLogs) {
 
 // 打刻一覧を全件削除
 async function deleteAllTimeLogs() {
-    if (confirm('全ての打刻情報を削除しますか？')) {
+    if (confirm('全ての打刻情報を削除しますか？登録されているメンバーは削除されません。')) {
         await db.timeLogs.clear();
         alert('打刻情報が全て削除されました。');
         const timeLogs = await db.timeLogs.toArray();
