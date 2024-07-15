@@ -263,28 +263,60 @@
             console.error(err.stack || err);
         });
 
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('name').value;
-            const gender = document.getElementById('gender').value;
-            const memo = document.getElementById('memo').value;
-            const userId = await db.users.add({ name, gender, memo });
-            alert('登録が完了しました。');
-            document.getElementById('registerForm').reset();
-            const registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
-            registerModal.hide();
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const gender = document.getElementById('gender').value;
+    const memo = document.getElementById('memo').value;
+    const userId = await db.users.add({ name, gender, memo });
+    alert('登録が完了しました。');
+    document.getElementById('registerForm').reset();
+    const registerModal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+    registerModal.hide();
 
-            // QRコードを生成して表示
-            const qrcodeModal = new bootstrap.Modal(document.getElementById('qrcodeModal'));
-            const qrcodeElement = document.getElementById('qrcode');
-            qrcodeElement.innerHTML = ''; // 既存のQRコードをクリア
-            new QRCode(qrcodeElement, {
-                text: userId.toString(),
-                width: 256,
-                height: 256
-            });
-            qrcodeModal.show();
-        });
+    // QRコードを生成して表示
+    const qrcodeModal = new bootstrap.Modal(document.getElementById('qrcodeModal'));
+    const qrcodeElement = document.getElementById('qrcode');
+    qrcodeElement.innerHTML = ''; // 既存のQRコードをクリア
+
+    const qrCode = new QRCode(qrcodeElement, {
+        text: userId.toString(),
+        width: 256,
+        height: 256
+    });
+
+    // QRコードが生成されるまで待つ
+    setTimeout(() => {
+        // 生成されたQRコード画像を取得
+        const qrCodeImg = qrcodeElement.querySelector('img');
+
+        // キャンバスを作成して余白を追加
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const size = 256;
+        const padding = 20;
+        canvas.width = size + padding * 2;
+        canvas.height = size + padding * 2;
+
+        const img = new Image();
+        img.onload = () => {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, padding, padding, size, size);
+
+            // ダウンロードリンクを追加
+            const downloadLink = document.createElement('a');
+            downloadLink.href = canvas.toDataURL('image/png');
+            downloadLink.download = `qrcode_${userId}.png`;
+            downloadLink.textContent = 'QRコードをダウンロード';
+            qrcodeElement.appendChild(downloadLink);
+        };
+        img.src = qrCodeImg.src;
+    }, 500);
+
+    qrcodeModal.show();
+});
+
 
         document.getElementById('registerModal').addEventListener('hidden.bs.modal', () => {
             document.getElementById('registerForm').reset();
