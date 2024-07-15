@@ -17,8 +17,8 @@
             <div class="col-md-3 mb-3">
                 <div class="card">
                     <div class="card-body">
-                        <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#registerModal">登録</button>
-                        <p class="mt-2 small text-muted">新しい従業員を登録します。名前、性別、メモを入力し、個別のQRコードを生成します。</p>
+                        <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#registerModal">メンバー登録</button>
+                        <p class="mt-2 small text-muted">新しいメンバーを登録します。名前、性別、メモを入力し、個別のQRコードを生成します。</p>
                     </div>
                 </div>
             </div>
@@ -26,7 +26,7 @@
                 <div class="card">
                     <div class="card-body">
                         <button class="btn btn-success w-100" onclick="startScan('in')">IN</button>
-                        <p class="mt-2 small text-muted">出勤時間を記録します。従業員のQRコードをスキャンして、現在時刻を出勤時間として記録します。</p>
+                        <p class="mt-2 small text-muted">出勤時間を記録します。メンバーのQRコードをスキャンして、現在時刻を出勤時間として記録します。</p>
                     </div>
                 </div>
             </div>
@@ -34,15 +34,15 @@
                 <div class="card">
                     <div class="card-body">
                         <button class="btn btn-danger w-100" onclick="startScan('out')">OUT</button>
-                        <p class="mt-2 small text-muted">退勤時間を記録します。従業員のQRコードをスキャンして、現在時刻を退勤時間として記録します。</p>
+                        <p class="mt-2 small text-muted">退勤時間を記録します。メンバーのQRコードをスキャンして、現在時刻を退勤時間として記録します。</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3 mb-3">
                 <div class="card">
                     <div class="card-body">
-                        <button class="btn btn-info w-100" data-bs-toggle="modal" data-bs-target="#userListModal">従業員一覧</button>
-                        <p class="mt-2 small text-muted">登録済みの全従業員を表示します。各従業員の情報を編集したり、削除したりすることができます。</p>
+                        <button class="btn btn-info w-100" data-bs-toggle="modal" data-bs-target="#userListModal">メンバー一覧</button>
+                        <p class="mt-2 small text-muted">登録済みの全メンバーを表示します。メンバーの情報を編集したり、削除したりすることができます。</p>
                     </div>
                 </div>
             </div>
@@ -50,7 +50,7 @@
                 <div class="card">
                     <div class="card-body">
                         <button class="btn btn-warning w-100" data-bs-toggle="modal" data-bs-target="#timeLogModal">打刻一覧</button>
-                        <p class="mt-2 small text-muted">記録された全ての打刻情報を表示します。日時、従業員名、出勤/退勤の種類、従業員の詳細が確認できます。</p>
+                        <p class="mt-2 small text-muted">記録された全ての打刻情報を表示します。日時、メンバー名、出勤/退勤の種類、メンバーの詳細が確認できます。</p>
                     </div>
                 </div>
             </div>
@@ -58,7 +58,7 @@
                 <div class="card">
                     <div class="card-body">
                         <button class="btn btn-secondary w-100" onclick="exportData()">エクスポート</button>
-                        <p class="mt-2 small text-muted">全てのデータをJSONファイルとして保存します。従業員情報と打刻記録が含まれます。</p>
+                        <p class="mt-2 small text-muted">全てのデータをJSONファイルとして保存します。メンバー情報と打刻記録が含まれます。</p>
                     </div>
                 </div>
             </div>
@@ -75,7 +75,7 @@
                 <div class="card">
                     <div class="card-body">
                         <button class="btn btn-secondary w-100" onclick="resetData()">リセット</button>
-                        <p class="mt-2 small text-muted">全てのデータを完全に削除します。従業員情報と打刻記録が全て消去されるので注意してください。</p>
+                        <p class="mt-2 small text-muted">全てのデータを完全に削除します。メンバー情報と打刻記録が全て消去されるので注意してください。</p>
                     </div>
                 </div>
             </div>
@@ -152,7 +152,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">従業員一覧</h5>
+                    <h5 class="modal-title">メンバー一覧</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -179,7 +179,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">従業員編集</h5>
+                    <h5 class="modal-title">メンバー編集</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -240,7 +240,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">従業員詳細</h5>
+                <h5 class="modal-title">メンバー詳細</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -306,37 +306,42 @@
             qrbox: 300
         },
         async (decodedText) => {
-            html5QrcodeScanner.stop();
-            scanModal.hide();
+            try {
+                // QRコードの内容を数値に変換
+                const id = parseInt(decodedText);
 
-            // 数字以外の文字列の場合、エラーメッセージを表示
-            if (isNaN(parseInt(decodedText))) {
-                alert('不正なQRコードです。');
-                window.location.reload();
-                return; // 処理を終了
-            }
+                // 数値に変換できない場合、エラーをスロー
+                if (isNaN(id)) {
+                    throw new Error('不正なQRコードです。');
+                }
 
-            const id = parseInt(decodedText);
-            const user = await db.users.get(id);
+                const user = await db.users.get(id);
 
-            if (user) {
-                const timestamp = new Date().toLocaleString('ja-JP');
-                await db.timeLogs.add({ userId: id, name: user.name, timestamp, type });
-                alert(`${user.name} さんの ${type === 'in' ? '出勤' : '退勤'} が記録されました。`);
-                // アラートが閉じられたらリロード
-                window.location.reload();
-            } else {
-                alert('登録されていないユーザーです。');
+                if (user) {
+                    const timestamp = new Date().toLocaleString('ja-JP');
+                    await db.timeLogs.add({ userId: id, name: user.name, timestamp, type });
+                    alert(`${user.name} さんの ${type === 'in' ? '出勤' : '退勤'} が記録されました。`);
+                    // アラートが閉じられたらリロード
+                    window.location.reload();
+                } else {
+                    throw new Error('登録されていないユーザーです。');
+                }
+            } catch (error) {
+                // エラーが発生した場合、モーダルを閉じる
+                html5QrcodeScanner.stop();
+                scanModal.hide();
+
+                alert(error.message);
                 // アラートが閉じられたらリロード
                 window.location.reload();
             }
         },
-            (errorMessage) => {
+        (errorMessage) => {
             // QRコード読み取りに失敗した場合の処理
-            }
-            ).catch((err) => {
-            // カメラの初期化に失敗した場合の処理
-            console.error(err);
+        }
+    ).catch((err) => {
+        // カメラの初期化に失敗した場合の処理
+        console.error(err);
     });
 
     // モーダルを閉じたときにカメラを停止
@@ -348,9 +353,6 @@
         window.location.reload();
     });
 }
-
-
-
 
 
 
