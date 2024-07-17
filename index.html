@@ -253,6 +253,15 @@
 
 
     <script>
+
+        window.addEventListener('storage', (event) => {
+        if (event.key === 'indexedDBQuotaExceeded') {
+            // ストレージの空き容量が少なくなった場合の処理
+            alert('取り扱い可能なのデータ容量が上限に迫っています。現行のデータをエクスポートし、打刻情報を全件削除してからご利用下さい。メンバー登録件数の最適化（存在しないメンバーは削除）をお勧めします。エクスポートしたデータは検索用として引き続き利用できます。');
+        }
+        });
+
+        // データベース初期化
         const db = new Dexie('TimeRecorderDB');
         db.version(1).stores({
             users: '++id,name,gender,memo',
