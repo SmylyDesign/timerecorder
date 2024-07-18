@@ -50,7 +50,7 @@
                 <div class="card">
                     <div class="card-body">
                         <button class="btn btn-warning w-100" data-bs-toggle="modal" data-bs-target="#timeLogModal">打刻一覧</button>
-                        <p class="mt-2 small text-muted">記録された全ての打刻情報を表示します。日時、メンバー名、出勤/退勤の種類、メンバーの詳細が確認できます。複数ワードでの検索も可能です。</p>
+                        <p class="mt-2 small text-muted">記録された全ての打刻情報を表示します。日時、メンバー名、入場/退場の種類、メンバーの詳細が確認できます。複数ワードでの検索も可能です。</p>
                     </div>
                 </div>
             </div>
@@ -500,7 +500,7 @@ function renderTimeLogList(timeLogs) {
         tr.innerHTML = `
             <td>${log.name}</td>
             <td>${log.timestamp}</td>
-            <td>${log.type === 'in' ? '出勤' : '退勤'}</td>
+            <td>${log.type === 'in' ? '入場' : '退場'}</td>
             <td><button class="btn btn-info btn-sm" onclick="showUserDetails(${log.userId})">詳細</button></td>
         `;
         timeLogBody.appendChild(tr);
