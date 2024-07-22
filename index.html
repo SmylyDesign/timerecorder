@@ -541,7 +541,7 @@ document.getElementById('timeLogSearchInput').addEventListener('input', async (e
         return searchTerms.every(term => {
             return log.name.toLowerCase().includes(term) ||
                    log.timestamp.toLowerCase().includes(term) ||
-                   (log.type === 'in' ? '出勤' : '退勤').toLowerCase().includes(term);
+                   (log.type === 'in' ? '入場' : '退場').toLowerCase().includes(term);
         });
     });
     renderTimeLogList(filteredLogs);
